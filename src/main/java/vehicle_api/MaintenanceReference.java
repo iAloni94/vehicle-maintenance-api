@@ -1,3 +1,4 @@
+// maintenance info for a certain make and model vehicle
 
 package vehicle_api;
 
@@ -20,8 +21,8 @@ public class MaintenanceReference {
     @OneToMany(mappedBy = "maintenanceReference", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<ComponentReference> components = new ArrayList<>();
-    // Constructor, Getters, and Setters
 
+    // Constructor, Getters, and Setters
     public void addComponent(String name, int maintenanceInterval, String action) {
         components.add(new ComponentReference(name, maintenanceInterval, action, this));
     }

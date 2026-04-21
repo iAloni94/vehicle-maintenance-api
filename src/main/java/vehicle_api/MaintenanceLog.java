@@ -1,3 +1,4 @@
+// actual maintenance log
 package vehicle_api;
 
 import jakarta.persistence.*;

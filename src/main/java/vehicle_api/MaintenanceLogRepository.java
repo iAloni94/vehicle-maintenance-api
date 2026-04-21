@@ -1,3 +1,4 @@
+//maintenance logs repo for eacg vehicle using id or mileage
 package vehicle_api;
 
 import org.springframework.data.jpa.repository.JpaRepository;

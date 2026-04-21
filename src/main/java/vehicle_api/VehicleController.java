@@ -46,11 +46,21 @@ public class VehicleController {
 
     @PostMapping("/autofill")
     public Vehicle autoFillVehicle(
-            @RequestParam String make, 
-            @RequestParam String model, 
+            @RequestParam String make,
+            @RequestParam String model,
             @RequestParam int year,
-        @RequestParam int mileage) {
-        
+            @RequestParam int mileage) {
+
         return vehicleService.autoFillAndSaveVehicle(make, model, year, mileage);
     }
+
+    @GetMapping("/{vehicleId}/next-service/{componentId}")
+    public String checkNextService(@PathVariable Long vehicleId, @PathVariable Long componentId) {
+        return vehicleService.getNextServiceDue(vehicleId, componentId);
+    }
+
+    @GetMapping("/{id}/status")
+public List<ComponentStatus> getVehicleStatus(@PathVariable Long id) {
+    return vehicleService.getFullMaintenanceStatus(id);
+}
 }

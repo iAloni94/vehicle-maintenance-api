@@ -21,6 +21,7 @@ public class Vehicle {
     // One vehicle can have many maintenance logs
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL)
     private List<MaintenanceLog> maintenanceLogs;
+
     
     // getters setters
     public Long getId() { return id; }

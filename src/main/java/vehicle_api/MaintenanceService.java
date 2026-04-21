@@ -26,8 +26,8 @@ public class MaintenanceService {
         Vehicle vehicle = vehicleRepo.findById(vehicleId)
                 .orElseThrow(() -> new RuntimeException("Vehicle not found"));
         // update mileage according to at least the last known maintenance
-        if (vehicle.getCurrentMilage() < request.getMileageReadingKm())
-            vehicle.setCurrentMilage(request.getMileageReadingKm());
+        if (vehicle.getCurrentMileage() < request.getMileageReadingKm())
+            vehicle.setCurrentMileage(request.getMileageReadingKm());
 
         // 2. Create the log
         MaintenanceLog log = new MaintenanceLog();

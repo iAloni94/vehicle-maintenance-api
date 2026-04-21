@@ -1,3 +1,5 @@
+// Components used for maintenance.
+
 package vehicle_api;
 
 import jakarta.persistence.*;
@@ -5,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 public class ComponentReference {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

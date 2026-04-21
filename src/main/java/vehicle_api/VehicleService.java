@@ -2,13 +2,20 @@ package vehicle_api;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
-import java.util.List; 
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class VehicleService {
 
     private final VehicleRepository vehicleRepository;
+    @Autowired
+    private ComponentReferenceRepository componentReferenceRepository;
 
     // Spring automatically injects the repository here
     public VehicleService(VehicleRepository vehicleRepository) {
@@ -73,9 +80,9 @@ public class VehicleService {
             newVehicle.setMake(exactMatch.getMake());
             newVehicle.setModel(exactMatch.getModel());
             newVehicle.setManufacturingYear(year);
-            if(mileage != 0){
-            newVehicle.setCurrentMileage(mileage);
-            }else{
+            if (mileage != 0) {
+                newVehicle.setCurrentMileage(mileage);
+            } else {
                 newVehicle.setCurrentMileage(0);
             }
 
@@ -95,25 +102,118 @@ public class VehicleService {
         }
     }
 
-
-    //parse string containing number to only number
+    // parse string containing number to only number
     private int parseStr(String str) {
-        if (str == null || str.isEmpty()) return 0;
-
-    // reges looking for first digit, a decimal if present and more digit.
-    java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("(\\d+(\\.\\d+)?)").matcher(str);
-
-    if (matcher.find()) {
-        try {
-            // matcher.group(1) gives us ONLY the first valid number found (e.g., "998.0")
-            String cleanNumber = matcher.group(1);
-            return (int) Math.round(Double.parseDouble(cleanNumber));
-        } catch (NumberFormatException e) {
-            System.err.println("Failed to parse numeric part: " + str);
+        if (str == null || str.isEmpty())
             return 0;
+
+        // reges looking for first digit, a decimal if present and more digit.
+        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("(\\d+(\\.\\d+)?)").matcher(str);
+
+        if (matcher.find()) {
+            try {
+                // matcher.group(1) gives us ONLY the first valid number found (e.g., "998.0")
+                String cleanNumber = matcher.group(1);
+                return (int) Math.round(Double.parseDouble(cleanNumber));
+            } catch (NumberFormatException e) {
+                System.err.println("Failed to parse numeric part: " + str);
+                return 0;
+            }
         }
+
+        return 0;
     }
-    
-    return 0;
+
+    public String getNextServiceDue(Long vehicleId, Long componentId) {
+        // 1. Get the vehicle
+        Vehicle vehicle = vehicleRepository.findById(vehicleId)
+                .orElseThrow(() -> new RuntimeException("Vehicle not found"));
+
+        // 2. Variables to track the most recent service
+        int highestMileageLogged = 0;
+        int requiredInterval = 0;
+        boolean hasBeenServiced = false;
+
+        ComponentReference foundPart = componentReferenceRepository.findById(componentId)
+                .orElseThrow(() -> new RuntimeException("CRASH: Could not find part with ID: " + componentId));
+
+        // 3. Loop through all logs for this specific vehicle
+        for (MaintenanceLog log : vehicle.getMaintenanceLogs()) {
+
+            // Check if this specific log included the part we are looking for (e.g., Engine
+            // Oil)
+            for (ComponentReference part : log.getServicedComponents()) {
+                if (part.getId().equals(componentId)) {
+
+                    // If it does, and the mileage is the highest we've seen, save it!
+                    if (log.getmilageReadingKmKm() > highestMileageLogged) {
+                        highestMileageLogged = log.getmilageReadingKmKm();
+                        requiredInterval = part.getIntervalKm(); // Grab the 3000km rule
+                        hasBeenServiced = true;
+                    }
+                }
+            }
+        }
+
+        // 4. Return the result
+        if (!hasBeenServiced) {
+            return "No history found for this component. Check manufacturer manual!";
+        }
+
+        int nextServiceMileage = highestMileageLogged + requiredInterval;
+        int kmsRemaining = nextServiceMileage - vehicle.getCurrentMileage();
+
+        return "Next " + foundPart.getComponentName() + " " + foundPart.getAction() + " due at: " + nextServiceMileage
+                + "km. You have " + kmsRemaining
+                + "km left.";
     }
+
+    public List<ComponentStatus> getFullMaintenanceStatus(Long vehicleId) {
+        // 1. Get the vehicle
+        Vehicle vehicle = vehicleRepository.findById(vehicleId)
+                .orElseThrow(() -> new RuntimeException("Vehicle not found"));
+        int currentOdo = vehicle.getCurrentMileage();
+
+        // 2. The "Whiteboard" (HashMap)
+        // Key = Component ID, Value = Highest Odometer Reading seen so far
+        Map<Long, Integer> latestServiceMap = new HashMap<>();
+        List<MaintenanceLog> logs = vehicle.getMaintenanceLogs();
+
+        // 3. Loop through the logs EXACTLY ONCE
+        for (MaintenanceLog log : logs) {
+            int logMileage = log.getMileageReadingKm();
+
+            // loop on each component in said log
+            for (ComponentReference part : log.getServicedComponents()) {
+                Long partId = part.getId();
+
+                // If the part isn't mapped, OR if this log's mileage is higher
+                // than what's on the board:
+                if (!latestServiceMap.containsKey(partId) || logMileage > latestServiceMap.get(partId)) {
+                    latestServiceMap.put(partId, logMileage); // add to map
+                }
+            }
+        }
+
+        List<ComponentStatus> fullReport = new ArrayList<>();
+
+        // 4. Loop through EVERY component in map
+        for (var entry : latestServiceMap.entrySet()) {
+            ComponentStatus status = new ComponentStatus();
+            ComponentReference thisPart = componentReferenceRepository.findById(entry.getKey())
+                    .orElseThrow(() -> new RuntimeException("CRASH: Could not find part with ID: " + entry.getKey()));
+            status.setComponentName(thisPart.getComponentName());
+            status.setIntervalKm(thisPart.getIntervalKm());
+             status.setLastServicedKm(entry.getValue());
+            int nextDue = entry.getValue() + thisPart.getIntervalKm();
+            status.setNextDueKm(nextDue);
+            status.setRemainingKm(nextDue - currentOdo);
+            status.setOverdue(currentOdo >= nextDue);
+
+            fullReport.add(status);
+        }
+
+        return fullReport;
+    }
+
 }
