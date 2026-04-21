@@ -40,16 +40,17 @@ public class VehicleController {
     }
 
     @PostMapping("/{vehicleId}/maintenance")
-    public MaintenanceLog logMaintenance(@PathVariable Long vehicleId, @RequestBody MaintenanceLog log) {
-        return maintenanceService.addLogToVehicle(vehicleId, log);
+    public MaintenanceLog logMaintenance(@PathVariable Long vehicleId, @RequestBody MaintenanceLogRequest logRequest) {
+        return maintenanceService.addLogToVehicle(vehicleId, logRequest);
     }
 
     @PostMapping("/autofill")
     public Vehicle autoFillVehicle(
             @RequestParam String make, 
             @RequestParam String model, 
-            @RequestParam int year) {
+            @RequestParam int year,
+        @RequestParam int mileage) {
         
-        return vehicleService.autoFillAndSaveVehicle(make, model, year);
+        return vehicleService.autoFillAndSaveVehicle(make, model, year, mileage);
     }
 }

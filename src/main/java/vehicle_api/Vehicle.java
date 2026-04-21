@@ -16,7 +16,7 @@ public class Vehicle {
     private String model; 
     private int manufacturingYear;
     private int engineCapacityCc;
-    private int currentMilage;
+    private int currentMileage;
 
     // One vehicle can have many maintenance logs
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL)
@@ -55,11 +55,11 @@ public class Vehicle {
     public void setMaintenanceLogs(List<MaintenanceLog> maintenanceLogs) {
         this.maintenanceLogs = maintenanceLogs;
     }
-    public int getCurrentMilage() {
-        return currentMilage;
+    public int getCurrentMileage() {
+        return currentMileage;
     }
-    public void setCurrentMilage(int currentMilage) {
-        this.currentMilage = currentMilage;
+    public void setCurrentMileage(int currentMilage) {
+        this.currentMileage = currentMilage;
     }
     
 }

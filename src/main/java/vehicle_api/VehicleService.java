@@ -1,11 +1,9 @@
 package vehicle_api;
 
 import org.springframework.stereotype.Service;
-import java.util.List;
-
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.*;
-import java.util.Arrays;
+import java.util.List; 
 
 @Service
 public class VehicleService {
@@ -36,7 +34,7 @@ public class VehicleService {
                     existingVehicle.setModel(updatedVehicle.getModel());
                     existingVehicle.setManufacturingYear(updatedVehicle.getManufacturingYear());
                     existingVehicle.setEngineCapacityCc(updatedVehicle.getEngineCapacityCc());
-                    existingVehicle.setCurrentMilage(updatedVehicle.getCurrentMilage());
+                    existingVehicle.setCurrentMileage(updatedVehicle.getCurrentMileage());
 
                     // 3. Save the modified object
                     return vehicleRepository.save(existingVehicle);
@@ -45,7 +43,7 @@ public class VehicleService {
     }
 
     // pulls data from ninja-api for motorcycles given make model and year
-    public Vehicle autoFillAndSaveVehicle(String make, String model, int year) {
+    public Vehicle autoFillAndSaveVehicle(String make, String model, int year, int mileage) {
         // 1. Set up the outbound HTTP client
         RestTemplate restTemplate = new RestTemplate();
 
@@ -75,6 +73,11 @@ public class VehicleService {
             newVehicle.setMake(exactMatch.getMake());
             newVehicle.setModel(exactMatch.getModel());
             newVehicle.setManufacturingYear(year);
+            if(mileage != 0){
+            newVehicle.setCurrentMileage(mileage);
+            }else{
+                newVehicle.setCurrentMileage(0);
+            }
 
             // check for null and clean string
             if (exactMatch.getDisplacement() != null) {
@@ -83,7 +86,6 @@ public class VehicleService {
                 newVehicle.setEngineCapacityCc(0);
 
             }
-
             // 6. Save to your PostgreSQL database
             return vehicleRepository.save(newVehicle);
         } else

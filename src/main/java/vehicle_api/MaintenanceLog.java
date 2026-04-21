@@ -1,7 +1,8 @@
 package vehicle_api;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List; 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -13,11 +14,9 @@ public class MaintenanceLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDate serviceDate;
+    private String serviceDate;
     private int mileageReadingKm;
     
-    private String description; 
-
 
     // Many logs belong to one vehicle
     @ManyToOne
@@ -25,19 +24,27 @@ public class MaintenanceLog {
     @JsonIgnore // <--- ADD THIS LINE
     private Vehicle vehicle;
 
-    // Many logs can reference one specific component replacement
-    @ManyToOne
-    @JoinColumn(name = "component_id")
-    private Component replacedComponent;
+    @ManyToMany
+    @JoinTable(
+        name = "log_components",
+        joinColumns = @JoinColumn(name = "log_id"),
+        inverseJoinColumns = @JoinColumn(name = "component_id")
+    )
+    private List<ComponentReference> servicedComponents = new ArrayList<>();
+
+    // Don't forget to generate the Getter and Setter for servicedComponents!
+    public List<ComponentReference> getServicedComponents() { return servicedComponents; }
+    public void setServicedComponents(List<ComponentReference> servicedComponents) { this.servicedComponents = servicedComponents; }
+
 
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     // ... add getters/setters for the rest of the fields
-    public LocalDate getServiceDate() {
+    public String getServiceDate() {
         return serviceDate;
     }
-    public void setServiceDate(LocalDate serviceDate) {
+    public void setServiceDate(String serviceDate) {
         this.serviceDate = serviceDate;
     }
     public int getmilageReadingKmKm() {
@@ -46,23 +53,17 @@ public class MaintenanceLog {
     public void setmilageReadingKmKm(int milageReadingKmKm) {
         this.mileageReadingKm = milageReadingKmKm;
     }
-    public String getDescription() {
-        return description;
-    }
-    public void setDescription(String description) {
-        this.description = description;
-    }
     public Vehicle getVehicle() {
         return vehicle;
     }
     public void setVehicle(Vehicle vehicle) {
         this.vehicle = vehicle;
     }
-    public Component getReplacedComponent() {
-        return replacedComponent;
+    public int getMileageReadingKm() {
+        return mileageReadingKm;
     }
-    public void setReplacedComponent(Component replacedComponent) {
-        this.replacedComponent = replacedComponent;
+    public void setMileageReadingKm(int mileageReadingKm) {
+        this.mileageReadingKm = mileageReadingKm;
     }
     
 }
