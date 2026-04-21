@@ -14,7 +14,7 @@ public class MaintenanceLog {
     private Long id;
 
     private LocalDate serviceDate;
-    private int milageReadingKm;
+    private int mileageReadingKm;
     
     private String description; 
 
@@ -41,10 +41,10 @@ public class MaintenanceLog {
         this.serviceDate = serviceDate;
     }
     public int getmilageReadingKmKm() {
-        return milageReadingKm;
+        return mileageReadingKm;
     }
     public void setmilageReadingKmKm(int milageReadingKmKm) {
-        this.milageReadingKm = milageReadingKmKm;
+        this.mileageReadingKm = milageReadingKmKm;
     }
     public String getDescription() {
         return description;

@@ -28,17 +28,5 @@ public class Component {
     public void setCategory(String category) {
         this.category = category;
     }
-    public Integer getExpectedLifespanKm() {
-        return expectedLifespanKm;
-    }
-    public void setExpectedLifespanKm(Integer expectedLifespanKm) {
-        this.expectedLifespanKm = expectedLifespanKm;
-    }
-    public Integer getExpectedLifespanMonths() {
-        return expectedLifespanMonths;
-    }
-    public void setExpectedLifespanMonths(Integer expectedLifespanMonths) {
-        this.expectedLifespanMonths = expectedLifespanMonths;
-    }
     
 }

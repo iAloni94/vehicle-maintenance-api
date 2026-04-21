@@ -1,6 +1,5 @@
 package vehicle_api;
 
-import vehicle_api.MaintenanceLog;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,5 +12,5 @@ public interface MaintenanceLogRepository extends JpaRepository<MaintenanceLog, 
     List<MaintenanceLog> findByVehicleId(Long vehicleId);
     
     // Find logs based on Milage
-    List<MaintenanceLog> findByMilage(String milage);
+    List<MaintenanceLog> findBymileageReadingKm(String milageReadingKm);
 }

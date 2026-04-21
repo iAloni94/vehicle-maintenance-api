@@ -1,9 +1,5 @@
 package vehicle_api;
 
-import vehicle_api.MaintenanceLog;
-import vehicle_api.Vehicle;
-import vehicle_api.MaintenanceLogRepository;
-import vehicle_api.VehicleRepository;
 import org.springframework.stereotype.Service;
 
 @Service

@@ -1,7 +1,5 @@
 package vehicle_api;
 
-import vehicle_api.Vehicle;
-import vehicle_api.VehicleService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,5 +42,14 @@ public class VehicleController {
     @PostMapping("/{vehicleId}/maintenance")
     public MaintenanceLog logMaintenance(@PathVariable Long vehicleId, @RequestBody MaintenanceLog log) {
         return maintenanceService.addLogToVehicle(vehicleId, log);
+    }
+
+    @PostMapping("/autofill")
+    public Vehicle autoFillVehicle(
+            @RequestParam String make, 
+            @RequestParam String model, 
+            @RequestParam int year) {
+        
+        return vehicleService.autoFillAndSaveVehicle(make, model, year);
     }
 }
